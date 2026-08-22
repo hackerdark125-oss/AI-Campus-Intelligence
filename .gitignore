@@ -1,0 +1,24 @@
+# Runtime data
+backend/dataset/*
+!backend/dataset/.gitkeep
+backend/trainer/*
+!backend/trainer/.gitkeep
+backend/*.db
+backend/.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node (if frontend is later upgraded to a build step)
+node_modules/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
