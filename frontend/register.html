@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Campus — Register</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container" style="max-width:460px; margin-top:60px;">
+    <div class="card">
+      <h2>Create account</h2>
+      <p class="muted">Admins manage students, upload documents, and train the model. Students can mark attendance and use the assistant.</p>
+
+      <label>Role</label>
+      <select id="role">
+        <option value="admin">Admin / Faculty</option>
+        <option value="student">Student</option>
+      </select>
+
+      <label>Username</label>
+      <input id="username" placeholder="e.g. shubham_p">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@campus.edu">
+      <label>Password</label>
+      <input id="password" type="password" placeholder="At least 8 characters">
+
+      <div id="studentCodeField" style="display:none;">
+        <label>Student Code (must already exist — ask your admin)</label>
+        <input id="student_code" placeholder="e.g. S001">
+      </div>
+
+      <button id="registerBtn">Create account</button>
+      <div id="msg" class="msg" style="display:none;"></div>
+
+      <p class="muted" style="margin-top:20px;">
+        Already have an account? <a href="login.html" style="color: var(--accent);">Login here</a>.
+      </p>
+    </div>
+  </div>
+
+<script src="app.js"></script>
+<script>
+  const roleSelect = document.getElementById("role");
+  const studentCodeField = document.getElementById("studentCodeField");
+  roleSelect.addEventListener("change", () => {
+    studentCodeField.style.display = roleSelect.value === "student" ? "block" : "none";
+  });
+
+  document.getElementById("registerBtn").addEventListener("click", async () => {
+    const msg = document.getElementById("msg");
+    const payload = {
+      username: document.getElementById("username").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("password").value,
+      role: roleSelect.value,
+    };
+    if (roleSelect.value === "student") {
+      payload.student_code = document.getElementById("student_code").value.trim();
+    }
+    try {
+      await api("/auth/register", { method: "POST", body: payload, auth: false });
+      showMsg(msg, "Account created! Redirecting to login...", "ok");
+      setTimeout(() => (window.location.href = "login.html"), 1200);
+    } catch (e) {
+      showMsg(msg, e.message, "err");
+    }
+  });
+</script>
+</body>
+</html>

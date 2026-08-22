@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Campus — Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">🎓 AI Campus <span>Intelligence</span></div>
+    <div class="nav" id="nav"></div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Cohort Overview</h2>
+      <div class="stat-row" id="statRow">
+        <div class="stat"><div class="value">—</div><div class="label">Students</div></div>
+        <div class="stat"><div class="value">—</div><div class="label">Class Days</div></div>
+        <div class="stat"><div class="value">—</div><div class="label">Avg Attendance</div></div>
+        <div class="stat"><div class="value">—</div><div class="label">At-Risk</div></div>
+      </div>
+      <div id="msg" class="msg" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Student Risk Table</h2>
+      <p class="muted">Risk is computed transparently from attendance % and assignment average — not a black-box model. See backend README for the exact rule.</p>
+      <table id="studentTable">
+        <thead>
+          <tr><th>Student</th><th>Attendance</th><th>Avg Score</th><th>Risk</th><th>Reason</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+<script src="app.js"></script>
+<script>
+  requireAuth();
+  renderNav("dashboard.html");
+
+  async function load() {
+    const msg = document.getElementById("msg");
+    try {
+      const cohort = await api("/analytics/cohort");
+      const stats = document.querySelectorAll("#statRow .stat .value");
+      stats[0].textContent = cohort.total_students;
+      stats[1].textContent = cohort.total_class_days;
+      stats[2].textContent = cohort.average_attendance_pct + "%";
+      stats[3].textContent = cohort.at_risk_count;
+
+      const tbody = document.querySelector("#studentTable tbody");
+      tbody.innerHTML = cohort.students
+        .map(
+          (s) => `
+        <tr>
+          <td>${s.name} <span class="muted">(${s.student_code})</span></td>
+          <td>${s.attendance_pct}% <span class="muted">(${s.present_days}/${s.total_class_days})</span></td>
+          <td>${s.avg_assignment_score ?? "—"}</td>
+          <td><span class="badge ${s.risk_level.toLowerCase()}">${s.risk_level}</span></td>
+          <td class="muted">${s.risk_reason}</td>
+        </tr>`
+        )
+        .join("");
+    } catch (e) {
+      if (e.message.includes("Admin access required")) {
+        showMsg(msg, "This overview is admin-only. Log in as an admin to see cohort analytics.", "info");
+      } else {
+        showMsg(msg, e.message, "err");
+      }
+    }
+  }
+  load();
+</script>
+</body>
+</html>

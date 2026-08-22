@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Campus — Login</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container" style="max-width:420px; margin-top:60px;">
+    <div class="card">
+      <h2>🎓 AI Campus Intelligence</h2>
+      <p class="muted">Sign in to continue.</p>
+
+      <label>Username</label>
+      <input id="username" placeholder="admin1">
+      <label>Password</label>
+      <input id="password" type="password" placeholder="••••••••">
+
+      <button id="loginBtn">Login</button>
+
+      <div id="msg" class="msg" style="display:none;"></div>
+
+      <p class="muted" style="margin-top:20px;">
+        No account? <a href="register.html" style="color: var(--accent);">Register here</a>.
+      </p>
+    </div>
+  </div>
+
+<script src="app.js"></script>
+<script>
+  if (isLoggedIn()) window.location.href = "dashboard.html";
+
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const msg = document.getElementById("msg");
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+    if (!username || !password) {
+      showMsg(msg, "Enter both username and password.", "err");
+      return;
+    }
+    try {
+      await login(username, password);
+      window.location.href = "dashboard.html";
+    } catch (e) {
+      showMsg(msg, e.message, "err");
+    }
+  });
+</script>
+</body>
+</html>

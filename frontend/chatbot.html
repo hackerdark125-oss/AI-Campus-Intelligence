@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Campus — Assistant</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">🎓 AI Campus <span>Intelligence</span></div>
+    <div class="nav" id="nav"></div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Ask the College Assistant</h2>
+      <p class="muted">Answers are grounded in uploaded college documents (syllabus, notices, etc.) using retrieval-augmented generation — not freely hallucinated.</p>
+
+      <div class="chat-log" id="chatLog"></div>
+
+      <div style="display:flex; gap:8px;">
+        <input id="question" placeholder="e.g. When is the DBMS exam?" style="flex:1;">
+        <button id="askBtn" style="margin-top:0;">Ask</button>
+      </div>
+      <div id="chatMsg" class="msg" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Upload Document (Admin)</h2>
+      <p class="muted">Plain-text (.txt) files only in this build — syllabus text, exam notices, rules, etc.</p>
+      <input type="file" id="docFile" accept=".txt">
+      <button id="uploadBtn">Upload</button>
+      <div id="uploadMsg" class="msg" style="display:none;"></div>
+
+      <h3 style="margin-top:22px;">Ingested Documents</h3>
+      <table id="docTable">
+        <thead><tr><th>Filename</th><th>Chunks</th><th>Uploaded</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+<script src="app.js"></script>
+<script>
+  requireAuth();
+  renderNav("chatbot.html");
+
+  const chatLog = document.getElementById("chatLog");
+
+  function addBubble(text, who, sources) {
+    const div = document.createElement("div");
+    div.className = `chat-bubble ${who}`;
+    div.textContent = text;
+    if (sources && sources.length) {
+      const src = document.createElement("div");
+      src.className = "sources";
+      src.textContent = "Sources: " + sources.join(", ");
+      div.appendChild(src);
+    }
+    chatLog.appendChild(div);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  document.getElementById("askBtn").addEventListener("click", async () => {
+    const input = document.getElementById("question");
+    const msg = document.getElementById("chatMsg");
+    const question = input.value.trim();
+    if (!question) return;
+
+    addBubble(question, "user");
+    input.value = "";
+
+    try {
+      const result = await api("/chatbot/ask", { method: "POST", body: { question } });
+      addBubble(result.answer, "bot", result.sources);
+      if (!result.used_llm) {
+        showMsg(msg, "Running in extractive mode (no ANTHROPIC_API_KEY configured on the server) — see README to enable AI-generated answers.", "info");
+      } else {
+        document.getElementById("chatMsg").style.display = "none";
+      }
+    } catch (e) {
+      showMsg(msg, e.message, "err");
+    }
+  });
+
+  document.getElementById("question").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("askBtn").click();
+  });
+
+  document.getElementById("uploadBtn").addEventListener("click", async () => {
+    const msg = document.getElementById("uploadMsg");
+    const fileInput = document.getElementById("docFile");
+    if (!fileInput.files.length) {
+      showMsg(msg, "Choose a .txt file first.", "err");
+      return;
+    }
+    const form = new FormData();
+    form.append("file", fileInput.files[0]);
+    try {
+      const doc = await api("/chatbot/documents", { method: "POST", body: form, isForm: true });
+      showMsg(msg, `Uploaded ${doc.filename} (${doc.chunk_count} chunks indexed).`, "ok");
+      loadDocs();
+    } catch (e) {
+      showMsg(msg, e.message, "err");
+    }
+  });
+
+  async function loadDocs() {
+    const docs = await api("/chatbot/documents");
+    document.querySelector("#docTable tbody").innerHTML = docs
+      .map(d => `<tr><td>${d.filename}</td><td>${d.chunk_count}</td><td>${new Date(d.uploaded_on).toLocaleString()}</td></tr>`)
+      .join("");
+  }
+  loadDocs();
+</script>
+</body>
+</html>

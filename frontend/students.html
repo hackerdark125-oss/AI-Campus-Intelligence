@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Campus — Students</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">🎓 AI Campus <span>Intelligence</span></div>
+    <div class="nav" id="nav"></div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Add Student</h2>
+      <p class="muted">Admin only. Create the roster entry first, then go to the Attendance page to register their face.</p>
+      <div class="grid-2">
+        <div>
+          <label>Student Code</label>
+          <input id="student_code" placeholder="e.g. S001">
+        </div>
+        <div>
+          <label>Name</label>
+          <input id="name" placeholder="e.g. Shubham Sharma">
+        </div>
+      </div>
+      <label>Department</label>
+      <input id="department" placeholder="e.g. ECE">
+      <button id="addBtn">Add Student</button>
+      <div id="msg" class="msg" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+      <h2>Roster</h2>
+      <table id="rosterTable">
+        <thead><tr><th>Code</th><th>Name</th><th>Department</th><th>Face Registered</th><th>Samples</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+<script src="app.js"></script>
+<script>
+  requireAuth();
+  renderNav("students.html");
+
+  async function loadRoster() {
+    const students = await api("/students");
+    document.querySelector("#rosterTable tbody").innerHTML = students
+      .map(
+        (s) => `<tr>
+          <td>${s.student_code}</td>
+          <td>${s.name}</td>
+          <td>${s.department ?? "—"}</td>
+          <td>${s.face_registered ? "✅" : "—"}</td>
+          <td>${s.face_sample_count}</td>
+        </tr>`
+      )
+      .join("");
+  }
+
+  document.getElementById("addBtn").addEventListener("click", async () => {
+    const msg = document.getElementById("msg");
+    const payload = {
+      student_code: document.getElementById("student_code").value.trim(),
+      name: document.getElementById("name").value.trim(),
+      department: document.getElementById("department").value.trim() || null,
+    };
+    if (!payload.student_code || !payload.name) {
+      showMsg(msg, "Student code and name are required.", "err");
+      return;
+    }
+    try {
+      await api("/students", { method: "POST", body: payload });
+      showMsg(msg, `Added ${payload.name}.`, "ok");
+      document.getElementById("student_code").value = "";
+      document.getElementById("name").value = "";
+      document.getElementById("department").value = "";
+      loadRoster();
+    } catch (e) {
+      showMsg(msg, e.message, "err");
+    }
+  });
+
+  loadRoster();
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+:root {
+  --bg: #0f1220;
+  --panel: #171b2e;
+  --panel-2: #1f2440;
+  --border: #2a2f4d;
+  --text: #e8e9f3;
+  --muted: #9099b8;
+  --accent: #6c8cff;
+  --accent-2: #7ce0c3;
+  --danger: #ff6b6b;
+  --warn: #ffb454;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar .brand { font-weight: 700; font-size: 1.1rem; }
+.topbar .brand span { color: var(--accent); }
+
+.nav a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 18px;
+  font-size: 0.92rem;
+}
+.nav a:hover, .nav a.active { color: var(--text); }
+
+.container { max-width: 980px; margin: 0 auto; padding: 28px 20px 60px; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h2 { margin-top: 0; font-size: 1.05rem; }
+.card h3 { margin-top: 0; font-size: 0.95rem; color: var(--muted); font-weight: 600; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 780px) { .grid-2 { grid-template-columns: 1fr; } }
+
+label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; margin-top: 12px; }
+
+input, select, textarea {
+  width: 100%;
+  padding: 9px 11px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 14px;
+  margin-right: 8px;
+}
+button:hover { opacity: 0.9; }
+button.secondary { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); }
+button.danger { background: var(--danger); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge.low { background: rgba(124,224,195,0.15); color: var(--accent-2); }
+.badge.medium { background: rgba(255,180,84,0.15); color: var(--warn); }
+.badge.high { background: rgba(255,107,107,0.15); color: var(--danger); }
+.badge.unknown { background: rgba(144,153,184,0.15); color: var(--muted); }
+
+table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.88rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+
+.msg { font-size: 0.85rem; margin-top: 10px; padding: 8px 10px; border-radius: 8px; }
+.msg.ok { background: rgba(124,224,195,0.12); color: var(--accent-2); }
+.msg.err { background: rgba(255,107,107,0.12); color: var(--danger); }
+.msg.info { background: rgba(108,140,255,0.12); color: var(--accent); }
+
+.stat-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.stat {
+  flex: 1;
+  min-width: 130px;
+  background: var(--panel-2);
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+}
+.stat .value { font-size: 1.6rem; font-weight: 700; }
+.stat .label { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+video, canvas { border-radius: 8px; width: 100%; max-width: 420px; background: #000; }
+
+.chat-log { max-height: 380px; overflow-y: auto; margin-bottom: 12px; }
+.chat-bubble { padding: 10px 14px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9rem; line-height: 1.4; }
+.chat-bubble.user { background: var(--accent); color: white; margin-left: 15%; }
+.chat-bubble.bot { background: var(--panel-2); border: 1px solid var(--border); margin-right: 15%; white-space: pre-wrap; }
+.chat-bubble .sources { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+
+.muted { color: var(--muted); font-size: 0.85rem; }
